@@ -66,9 +66,8 @@ class PatchSampleMLP(nn.Module):
 
         if patch_ids is None:
             num_patches = min(self.num_patches, H * W)
-            patch_ids = torch.stack(
-                [torch.randperm(H * W, device=feat.device)[:num_patches] for _ in range(B)],
-                dim=0,
+            patch_ids = torch.randint(
+                0, H * W, (B, num_patches), device=feat.device,
             )
 
         feat_sampled = torch.gather(

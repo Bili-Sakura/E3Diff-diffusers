@@ -104,6 +104,8 @@ class CUTModel(BaseModel):
 
         # -- MLP heads for PatchNCE (encoder layers → embeddings) ---------
         nce_layers = cut_opt.get("nce_layers", [0, 4, 8, 12, 16])
+        if not nce_layers:
+            raise ValueError("nce_layers must be a non-empty list of layer indices")
         mlp_channels = cut_opt.get("mlp_channels", 256)
         num_patches = cut_opt.get("num_patches", 256)
         self.nce_layers = nce_layers
@@ -261,7 +263,7 @@ class CUTModel(BaseModel):
             emb_g, _ = mlp(feat_g, patch_ids=patch_ids)
             total_loss = total_loss + self.nce_loss(emb_g, emb_s.detach())
 
-        return total_loss / max(len(self.nce_layers), 1)
+        return total_loss / len(self.nce_layers)
 
     # ------------------------------------------------------------------
     # Inference
@@ -322,6 +324,8 @@ class CUTModel(BaseModel):
         disc_path = f"{load_path}_cut_disc.pth"
         if os.path.isfile(disc_path) and self.opt.get("phase") == "train":
             logger.info("Loading CUT discriminator from [%s]", disc_path)
+            # weights_only=False is required for optimizer state dicts;
+            # only load checkpoints from trusted sources.
             ckpt = torch.load(disc_path, map_location=self.device, weights_only=False)
             self.netD.load_state_dict(ckpt["discriminator"], strict=False)
             self.optG.load_state_dict(ckpt["optimizer_g"])

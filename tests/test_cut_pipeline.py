@@ -112,13 +112,12 @@ class TestCUTPipeline:
         assert len(result.images) == 3
 
     def test_invalid_output_type_raises(self):
+        import pytest
+
         pipeline = self._make_pipeline()
         source = torch.randn(1, 3, 64, 64)
-        try:
+        with pytest.raises(ValueError, match="invalid"):
             pipeline(source, output_type="invalid")
-            assert False, "Should have raised ValueError"
-        except ValueError as e:
-            assert "invalid" in str(e)
 
     def test_from_checkpoint(self, tmp_path):
         gen = ResNetGenerator(
