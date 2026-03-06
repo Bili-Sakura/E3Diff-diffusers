@@ -1,0 +1,67 @@
+{
+    "name": "CUT_SAR2EO_256",
+    "phase": "train",
+    "gpu_ids": [0],
+    "distributed": false,
+
+    "model": {
+        "which_model_G": "cut",
+        "cut": {
+            "in_channels": 3,
+            "out_channels": 3,
+            "base_filters": 64,
+            "n_residual_blocks": 9,
+            "disc_in_channels": 3,
+            "disc_base_filters": 64,
+            "disc_n_layers": 3,
+            "nce_layers": [0, 4, 8, 12, 16],
+            "mlp_channels": 256,
+            "num_patches": 256,
+            "nce_temperature": 0.07,
+            "lambda_nce": 1.0,
+            "lambda_gan": 1.0,
+            "nce_idt": true,
+            "beta1": 0.5
+        }
+    },
+
+    "path": {
+        "log": "experiments/CUT_SAR2EO_256/logs",
+        "tb_logger": "experiments/CUT_SAR2EO_256/tb_logger",
+        "results": "experiments/CUT_SAR2EO_256/results",
+        "checkpoint": "experiments/CUT_SAR2EO_256/checkpoint",
+        "resume_state": null
+    },
+
+    "datasets": {
+        "train": {
+            "name": "SAR_EO",
+            "dataroot": "../dataset/SAR_EO/train",
+            "l_resolution": 256,
+            "r_resolution": 256,
+            "batch_size": 4,
+            "num_workers": 4,
+            "use_shuffle": true
+        },
+        "val": {
+            "name": "SAR_EO",
+            "dataroot": "../dataset/SAR_EO/val",
+            "l_resolution": 256,
+            "r_resolution": 256,
+            "batch_size": 1,
+            "num_workers": 1,
+            "use_shuffle": false
+        }
+    },
+
+    "train": {
+        "n_iter": 200000,
+        "val_freq": 5000,
+        "save_checkpoint_freq": 10000,
+        "print_freq": 100,
+        "optimizer": {
+            "type": "adam",
+            "lr": 0.0002
+        }
+    }
+}
